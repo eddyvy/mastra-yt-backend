@@ -1,13 +1,13 @@
 
 import { Mastra } from '@mastra/core/mastra';
 import { PinoLogger } from '@mastra/loggers';
-import { LibSQLStore } from '@mastra/libsql';
 import { Observability, DefaultExporter, CloudExporter, SensitiveDataFilter } from '@mastra/observability';
 import { weatherWorkflow } from './workflows/weather-workflow';
 import { weatherAgent } from './agents/weather-agent';
 import { calculatorAgent } from './agents/calculator-agent';
 import { toolCallAppropriatenessScorer, completenessScorer, translationScorer } from './scorers/weather-scorer';
 import { PostgresStore } from '@mastra/pg'
+import { VercelDeployer } from '@mastra/deployer-vercel'
 
 const storage = new PostgresStore({
   id: 'pg-storage',
@@ -15,6 +15,7 @@ const storage = new PostgresStore({
 })
 
 export const mastra = new Mastra({
+  deployer: new VercelDeployer(),
   workflows: { weatherWorkflow },
   agents: { weatherAgent, calculatorAgent },
   scorers: { toolCallAppropriatenessScorer, completenessScorer, translationScorer },
