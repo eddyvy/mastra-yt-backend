@@ -1,11 +1,19 @@
-
-import { Mastra } from '@mastra/core/mastra';
-import { PinoLogger } from '@mastra/loggers';
-import { Observability, DefaultExporter, CloudExporter, SensitiveDataFilter } from '@mastra/observability';
-import { weatherWorkflow } from './workflows/weather-workflow';
-import { weatherAgent } from './agents/weather-agent';
-import { calculatorAgent } from './agents/calculator-agent';
-import { toolCallAppropriatenessScorer, completenessScorer, translationScorer } from './scorers/weather-scorer';
+import { Mastra } from '@mastra/core/mastra'
+import { PinoLogger } from '@mastra/loggers'
+import {
+  Observability,
+  DefaultExporter,
+  CloudExporter,
+  SensitiveDataFilter,
+} from '@mastra/observability'
+import { weatherWorkflow } from './workflows/weather-workflow'
+import { weatherAgent } from './agents/weather-agent'
+import { calculatorAgent } from './agents/calculator-agent'
+import {
+  toolCallAppropriatenessScorer,
+  completenessScorer,
+  translationScorer,
+} from './scorers/weather-scorer'
 import { PostgresStore } from '@mastra/pg'
 import { VercelDeployer } from '@mastra/deployer-vercel'
 import { SimpleAuth } from '@mastra/core/server'
@@ -14,6 +22,7 @@ import { SimpleAuth } from '@mastra/core/server'
 type User = {
   id: string
   name: string
+  role: 'admin' | 'user'
 }
 
 const storage = new PostgresStore({
@@ -25,7 +34,11 @@ export const mastra = new Mastra({
   deployer: new VercelDeployer(),
   workflows: { weatherWorkflow },
   agents: { weatherAgent, calculatorAgent },
-  scorers: { toolCallAppropriatenessScorer, completenessScorer, translationScorer },
+  scorers: {
+    toolCallAppropriatenessScorer,
+    completenessScorer,
+    translationScorer,
+  },
   storage,
   logger: new PinoLogger({
     name: 'Mastra',
@@ -51,8 +64,9 @@ export const mastra = new Mastra({
         [process.env.SIMPLE_AUTH_TOKEN!]: {
           id: 'user-admin',
           name: 'Admin User',
+          role: 'admin',
         },
       },
     }),
   },
-});
+})
