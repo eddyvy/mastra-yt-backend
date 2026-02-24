@@ -8,6 +8,13 @@ import { calculatorAgent } from './agents/calculator-agent';
 import { toolCallAppropriatenessScorer, completenessScorer, translationScorer } from './scorers/weather-scorer';
 import { PostgresStore } from '@mastra/pg'
 import { VercelDeployer } from '@mastra/deployer-vercel'
+import { SimpleAuth } from '@mastra/core/server'
+
+// Define your user type
+type User = {
+  id: string
+  name: string
+}
 
 const storage = new PostgresStore({
   id: 'pg-storage',
@@ -38,4 +45,14 @@ export const mastra = new Mastra({
       },
     },
   }),
+  server: {
+    auth: new SimpleAuth<User>({
+      tokens: {
+        [process.env.SIMPLE_AUTH_TOKEN!]: {
+          id: 'user-admin',
+          name: 'Admin User',
+        },
+      },
+    }),
+  },
 });
