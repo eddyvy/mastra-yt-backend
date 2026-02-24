@@ -20,7 +20,7 @@ export const weatherAgent = new Agent({
 
       Use the weatherTool to fetch current weather data.
 `,
-  model: 'openai/gpt-4o',
+  model: 'vercel/deepseek/deepseek-v3.2-thinking',
   tools: { weatherTool },
   scorers: {
     toolCallAppropriateness: {
