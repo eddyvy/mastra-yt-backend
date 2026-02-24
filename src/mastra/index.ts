@@ -7,16 +7,18 @@ import { weatherWorkflow } from './workflows/weather-workflow';
 import { weatherAgent } from './agents/weather-agent';
 import { calculatorAgent } from './agents/calculator-agent';
 import { toolCallAppropriatenessScorer, completenessScorer, translationScorer } from './scorers/weather-scorer';
+import { PostgresStore } from '@mastra/pg'
+
+const storage = new PostgresStore({
+  id: 'pg-storage',
+  connectionString: process.env.DATABASE_URL,
+})
 
 export const mastra = new Mastra({
   workflows: { weatherWorkflow },
   agents: { weatherAgent, calculatorAgent },
   scorers: { toolCallAppropriatenessScorer, completenessScorer, translationScorer },
-  storage: new LibSQLStore({
-    id: "mastra-storage",
-    // stores observability, scores, ... into persistent file storage
-    url: "file:./mastra.db",
-  }),
+  storage,
   logger: new PinoLogger({
     name: 'Mastra',
     level: 'info',
