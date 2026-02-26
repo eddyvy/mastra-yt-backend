@@ -16,13 +16,29 @@ import {
 } from './scorers/weather-scorer'
 import { PostgresStore } from '@mastra/pg'
 import { VercelDeployer } from '@mastra/deployer-vercel'
-import { SimpleAuth } from '@mastra/core/server'
+import { MastraAuthConfig } from '@mastra/core/server'
 
 // Define your user type
 type User = {
   id: string
   name: string
   role: 'admin' | 'user'
+}
+
+const authConfig: MastraAuthConfig<User> = {
+  async authenticateToken(token, request) {
+    if (token === process.env.SIMPLE_AUTH_TOKEN) {
+      return {
+        id: 'user-admin',
+        name: 'Admin User',
+        role: 'admin',
+      }
+    }
+    throw new Error('Invalid token')
+  },
+  async authorize(path, method, user, context) {
+    return true
+  },
 }
 
 const storage = new PostgresStore({
@@ -59,14 +75,6 @@ export const mastra = new Mastra({
     },
   }),
   server: {
-    auth: new SimpleAuth<User>({
-      tokens: {
-        [process.env.SIMPLE_AUTH_TOKEN!]: {
-          id: 'user-admin',
-          name: 'Admin User',
-          role: 'admin',
-        },
-      },
-    }),
+    auth: authConfig,
   },
 })
